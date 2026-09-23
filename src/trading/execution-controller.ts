@@ -8,6 +8,10 @@ export interface ExecutionBackend {
   stop(): Promise<void>;
 }
 
+export interface ExecutionFactoryOptions {
+  liveBootstrap?: LiveBootstrap;
+}
+
 export interface PaperExecutionBackend extends ExecutionBackend {
   mode: "paper";
   canSendRealOrders: false;
@@ -39,11 +43,17 @@ export function createLiveExecutionBackend(bootstrap: LiveBootstrap): LiveExecut
   };
 }
 
-export function createExecutionController(mode: ExecutionMode): ExecutionBackend {
-  if (mode === "live") {
+export function createExecutionController(
+  mode: ExecutionMode,
+  options: ExecutionFactoryOptions = {}
+): ExecutionBackend {
+  if (mode === "paper") return createPaperExecutionBackend();
+
+  if (!options.liveBootstrap) {
     throw new Error(
-      "Live execution safety lock is active in this release. Real orders remain disabled."
+      "Live execution safety lock is active in this release. A verified live bootstrap is required."
     );
   }
-  return createPaperExecutionBackend();
+
+  return createLiveExecutionBackend(options.liveBootstrap);
 }
