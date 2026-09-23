@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0
+
+- Added authenticated Perps session bootstrap using the official TypeScript SDK.
+- Added a dependency-injected live execution adapter for account snapshots, leverage configuration, IOC entry orders with TP/SL, cancel-all, and dead-man auto-cancel.
+- Added mocked-session live adapter tests without sending real orders.
+- Private keys remain local-only and are never required in source code.
+- The main bot still fails closed for `TRADING_MODE=live`; real-money execution is not enabled until authenticated integration can be tested against the Perps service from a permitted environment.
+
 ## 0.5.0
 
 - Added GitHub Actions CI on Node.js 24.
