@@ -10,4 +10,12 @@ await assert.rejects(()=>e.open({side:"long",tick,quantity:1,stopLoss:101,takePr
 await assert.rejects(()=>e.open({side:"short",tick,quantity:1,stopLoss:99,takeProfit:98}),/geometry/);
 await e.cancelAll();await e.disarmDeadManSwitch();await e.close();assert.deepEqual(calls,["leverage","arm","order","cancel","disarm","close"]);
 const emergencyCalls:string[]=[];const emergency={...fake,cancelAllOrders:async()=>{emergencyCalls.push("cancel")},close:async()=>{emergencyCalls.push("close")}};const ee=new LiveEngine(emergency as never,{enabled:true,instrumentId:1,leverage:1});await ee.emergencyStop();assert.deepEqual(emergencyCalls,["cancel","close"]);
+const rules={minNotional:10,maxMarketNotional:1000,maxLeverage:3,quantityDecimals:2,isolatedOnly:false};
+const ruled=new LiveEngine(fake as never,{enabled:true,instrumentId:1,leverage:2,maxOrderNotional:500,instrumentRules:rules});
+await assert.rejects(()=>ruled.open({side:"long",tick,quantity:.05,stopLoss:99,takeProfit:102}),/minimum notional/);
+await assert.rejects(()=>ruled.open({side:"long",tick,quantity:.123,stopLoss:99,takeProfit:102}),/precision/);
+const tooLeveraged=new LiveEngine(fake as never,{enabled:true,instrumentId:1,leverage:4,instrumentRules:rules});
+await assert.rejects(()=>tooLeveraged.configureRisk(),/instrument maximum/);
+const isolated=new LiveEngine(fake as never,{enabled:true,instrumentId:1,leverage:2,instrumentRules:{...rules,isolatedOnly:true}});
+await assert.rejects(()=>isolated.configureRisk(),/isolated margin/);
 console.log("live engine tests passed");
