@@ -1,8 +1,8 @@
-# Polymarket Perps Bot v1.0 RC1
+# Polymarket Perps Bot
 
-Open-source TypeScript bot for experimenting with Polymarket Perps. **Paper mode remains the safe default.** v1.0 RC1 also contains an explicitly armed real-money runner for environments where Polymarket Perps is available and the user is permitted to use it.
+Open source TypeScript bot for experimenting with Polymarket Perps. **Paper mode remains the safe default.** v1.0 RC1 also contains an explicitly armed real money runner for environments where Polymarket Perps is available and the user is permitted to use it.
 
-## Beginner setup - paper mode
+## Beginner setup paper mode
 
 1. Install Node.js 24+.
 2. Download the repository ZIP and extract it.
@@ -19,7 +19,7 @@ Price -> EMA/RSI -> LONG / SHORT / HOLD -> risk checks -> execution. Paper mode 
 
 `REAL POLYMARKET DATA` describes the data source; it does not by itself mean real-money execution.
 
-## Real-money runner - RC / not live-service verified
+## Real money runner - RC / not live service verified
 
 The separate `npm run live` entry point can submit real orders. It is intentionally not started by `START-BOT.bat` and fails closed unless all live requirements are explicitly configured.
 
@@ -40,9 +40,9 @@ Then the explicit command is:
 npm run live
 ```
 
-Live safeguards include official instrument/rule resolution, account preflight, leverage validation, minimum/maximum notional and quantity precision checks, stale-price blocking, TP/SL geometry checks, a local per-order notional cap, daily-loss guard, liquidation-state guard, refusal to stack another position in the same instrument, dead-man auto-cancel and cleanup on shutdown.
+Live safeguards include official instrument/rule resolution, account preflight, leverage validation, minimum/maximum notional and quantity precision checks, stale price blocking, TP/SL geometry checks, a local per-order notional cap, daily loss guard, liquidation state guard, refusal to stack another position in the same instrument, dead-man auto-cancel and cleanup on shutdown.
 
-**RC1 limitation:** automated tests and CI are green, but a real-money Polymarket order has not been end-to-end integration-tested from this development environment. Do not treat RC1 as proof that live execution will work on your account/network. Polymarket's Perps API is experimental and may change.
+**RC1 limitation:** automated tests and CI are green, but a real money Polymarket order has not been end to end integration tested from this development environment. Do not treat RC1 as proof that live execution will work on your account/network. Polymarket's Perps API is experimental and may change.
 
 ## Main settings
 
@@ -70,9 +70,9 @@ npm run build
 
 ## Network and security
 
-TLS verification must remain enabled. Do not use certificate-verification bypasses. If Polymarket is unavailable from a network or region, this project does not bypass that restriction; use mock mode for offline development and follow applicable rules.
+TLS verification must remain enabled. Do not use certificate verification bypasses. If Polymarket is unavailable from a network or region, this project does not bypass that restriction use mock mode for offline development and follow applicable rules.
 
-Never share private keys, seed phrases, API secrets or delegated credentials. Use a wallet/account whose loss exposure you understand before any real-money test.
+Never share private keys, seed phrases, API secrets or delegated credentials. Use a wallet/account whose loss exposure you understand before any real money test.
 
 ## Disclaimer
 
