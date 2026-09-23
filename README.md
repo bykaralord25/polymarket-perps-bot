@@ -1,53 +1,65 @@
-# Polymarket Perps Bot v0.9
+# Polymarket Perps Bot v1.0 RC1
 
-Open-source TypeScript bot for experimenting with Polymarket Perps strategies. The delivered main application is **paper trading by default**. It includes a local dashboard plus safety-gated authenticated live infrastructure, but the main entry point does not automatically enable real-money trading.
+Open-source TypeScript bot for experimenting with Polymarket Perps. **Paper mode remains the safe default.** v1.0 RC1 also contains an explicitly armed real-money runner for environments where Polymarket Perps is available and the user is permitted to use it.
 
-## What happens when I start it?
+## Beginner setup — paper mode
 
-The bot receives a market price, calculates EMA and RSI, produces LONG / SHORT / HOLD, applies risk rules, and simulates the position in the paper engine. The dashboard shows price, EMA, RSI, signal, paper balance, PnL, position, trade statistics and recent activity.
-
-**REAL POLYMARKET DATA** means the price feed is from Polymarket. **SIMULATED MARKET DATA** means the local mock feed is being used. Both can still use paper execution.
-
-## Easiest Windows setup
-
-1. Install Node.js 24 or newer.
-2. Download this repository as a ZIP and extract it.
+1. Install Node.js 24+.
+2. Download the repository ZIP and extract it.
 3. Double-click `SETUP.bat` once.
 4. Double-click `START-BOT.bat`.
-5. The dashboard opens at `127.0.0.1:8787`.
-6. Press Ctrl+C in the bot window to stop it. The launcher also closes its dashboard process.
+5. The local dashboard opens at `127.0.0.1:8787`.
+6. Ctrl+C stops the bot; the launcher also closes its dashboard process.
 
-On first setup the project creates a safe **PAPER + MOCK** configuration. No wallet key is needed for this mode.
+First setup defaults to **PAPER + MOCK**, so it needs no wallet key and sends no real order.
 
-## Settings
+## What the bot does
+
+Price → EMA/RSI → LONG / SHORT / HOLD → risk checks → execution. Paper mode simulates execution. The dashboard shows market-data mode, charts, signal, paper balance, PnL, position and trade statistics.
+
+`REAL POLYMARKET DATA` describes the data source; it does not by itself mean real-money execution.
+
+## Real-money runner — RC / not live-service verified
+
+The separate `npm run live` entry point can submit real orders. It is intentionally not started by `START-BOT.bat` and fails closed unless all live requirements are explicitly configured.
+
+Before it can start, the local `.env` must contain the user's own credentials and the exact acknowledgement:
+
+```env
+LIVE_CONFIRM=I_UNDERSTAND_REAL_MONEY
+LIVE_MAX_ORDER_NOTIONAL=25
+POLYMARKET_PRIVATE_KEY=YOUR_LOCAL_PRIVATE_KEY
+# POLYMARKET_DEPOSIT_WALLET=0x...   # only when required for your setup
+```
+
+Never put the real key in GitHub, an issue, screenshot, chat message or committed file. `.env` is ignored by Git.
+
+Then the explicit command is:
+
+```bash
+npm run live
+```
+
+Live safeguards include official instrument/rule resolution, account preflight, leverage validation, minimum/maximum notional and quantity precision checks, stale-price blocking, TP/SL geometry checks, a local per-order notional cap, daily-loss guard, liquidation-state guard, refusal to stack another position in the same instrument, dead-man auto-cancel and cleanup on shutdown.
+
+**RC1 limitation:** automated tests and CI are green, but a real-money Polymarket order has not been end-to-end integration-tested from this development environment. Do not treat RC1 as proof that live execution will work on your account/network. Polymarket's Perps API is experimental and may change.
+
+## Main settings
 
 | Setting | Meaning |
 | --- | --- |
-| `TRADING_MODE=paper` | Simulated execution; default and delivered main mode. |
-| `MARKET_SOURCE=mock` | Fake local prices for offline testing. |
+| `TRADING_MODE=paper` | Default simulated execution. |
+| `MARKET_SOURCE=mock` | Local fake prices. |
 | `MARKET_SOURCE=polymarket` | Public Polymarket Perps market data. |
-| `SYMBOL=BTC` | Market to watch. |
-| `STARTING_BALANCE=10000` | Paper starting balance. |
-| `RISK_PER_TRADE=0.01` | Risk-model fraction per simulated trade. |
-| `MAX_LEVERAGE=2` | Configured leverage ceiling. |
+| `SYMBOL=BTC` | Instrument symbol. |
+| `RISK_PER_TRADE=0.01` | Risk-model fraction. |
+| `MAX_LEVERAGE=2` | Configured leverage. |
 | `STOP_LOSS_PCT=0.01` | Stop-loss distance. |
 | `TAKE_PROFIT_PCT=0.02` | Take-profit distance. |
-| `DAILY_LOSS_LIMIT_PCT=0.03` | Paper daily-loss guard. |
+| `DAILY_LOSS_LIMIT_PCT=0.03` | Daily-loss guard. |
+| `LIVE_MAX_ORDER_NOTIONAL=25` | Local maximum notional per live order. |
 
-## What is already implemented?
-
-- Official Polymarket Perps public ticker/WebSocket feed and offline mock feed.
-- EMA + RSI example strategy.
-- Paper engine with LONG/SHORT, SL, TP, signal flips and JSONL logging.
-- Local dashboard with charts, PnL, position and trade statistics.
-- WebSocket reconnect/backoff and clear network/TLS errors.
-- Automated tests for indicators, risk, paper execution and live safety layers.
-- Authenticated live session adapter, automatic instrument/rule resolution, account preflight, leverage checks, max-notional/stale-price/precision/TP-SL guards, dead-man auto-cancel, graceful shutdown and fail-closed startup.
-- GitHub Actions CI, Docker support and Windows one-click helpers.
-
-The live infrastructure is deliberately separated from the default main execution path. It has been exercised with mocked sessions in automated tests; this repository does **not** claim a real-money order was successfully integration-tested.
-
-## Developer commands
+## Verification
 
 ```bash
 npm install
@@ -56,26 +68,15 @@ npm test
 npm run build
 ```
 
-To run manually:
+## Network and security
 
-```bash
-npm run dev
-npm run dashboard
-```
+TLS verification must remain enabled. Do not use certificate-verification bypasses. If Polymarket is unavailable from a network or region, this project does not bypass that restriction; use mock mode for offline development and follow applicable rules.
 
-## Network / TLS
-
-Do not disable TLS verification. If the operating system already trusts a required local CA, `npm run dev:system-ca` is available. If Polymarket is unavailable from your network or region, use `MARKET_SOURCE=mock` for offline development and follow applicable rules.
-
-## Security
-
-Never commit or share private keys, seed phrases, API secrets, delegated credentials or a real `.env`. The repository ignores `.env`. Live startup fails closed when required safety checks are not satisfied.
-
-Polymarket's Perps APIs are marked experimental by its official SDK and may change.
+Never share private keys, seed phrases, API secrets or delegated credentials. Use a wallet/account whose loss exposure you understand before any real-money test.
 
 ## Disclaimer
 
-This project is educational/experimental software, not financial advice and not a promise of profit. Perpetual futures and leverage can cause rapid losses. Users are responsible for keys, configuration, trades and compliance with applicable rules. This project is independent and is not affiliated with or endorsed by Polymarket.
+Experimental software, not financial advice and not a profit guarantee. Perpetual futures and leverage can cause rapid losses. Users are responsible for keys, configuration, trades and compliance with applicable rules. This project is independent and is not affiliated with or endorsed by Polymarket.
 
 ## License
 

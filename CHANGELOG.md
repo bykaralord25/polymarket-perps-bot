@@ -1,29 +1,29 @@
 # Changelog
 
+## 1.0.0-rc.1
+
+- Added a separate explicitly armed real-money runner (`npm run live`).
+- Live mode requires an exact acknowledgement plus locally supplied credentials.
+- Added local per-order notional cap, daily-loss and liquidation guards.
+- Refuses to stack a second position in the selected instrument.
+- Preserves instrument constraints, stale-price, leverage, TP/SL, dead-man and graceful-shutdown protections.
+- Added CI coverage for the live runner's required safety gates.
+- Live service execution is RC-only until an end-to-end real-money integration test can be performed in a permitted/reachable environment.
+
 ## 0.9.0
 
-- Added safety-gated live execution architecture without enabling real orders in the default main path.
-- Added authenticated session startup, automatic instrument/rule resolution and account preflight.
-- Added leverage, minimum/maximum notional, quantity precision, stale-price and TP/SL geometry guards.
-- Added dead-man auto-cancel heartbeat, emergency stop and graceful shutdown.
-- Added fail-closed live startup orchestration and execution backend abstraction.
-- Added live safety/runtime/bootstrap/instrument/startup automated tests.
-- Added required `viem` runtime dependency for the official signer integration.
-- Hardened dashboard file serving and state writes.
-- Added explicit REAL vs SIMULATED market-data badge.
-- Added price/EMA and RSI charts, PnL, position and trade statistics.
-- Improved Windows launcher cleanup so its dashboard process is stopped with the bot.
-- Updated beginner documentation for the delivered v0.9 behavior.
+- Added authenticated live infrastructure, automatic instrument/rule resolution and account preflight behind safety gates.
+- Added local dashboard charts/stats, REAL vs SIMULATED data badge and hardened state serving.
+- Added Windows setup/start helpers and dashboard-process cleanup.
+- Added comprehensive automated tests and CI.
 
 ## 0.8.0
 
 - Added local browser dashboard, charts, paper PnL, position and trade statistics.
-- Added one-click dashboard launch on Windows.
 
 ## 0.7.0
 
-- Added one-click Windows setup/start helpers and beginner-focused terminal output.
-- First run defaults to PAPER + MOCK.
+- Added beginner Windows setup/start helpers. First run defaults to PAPER + MOCK.
 
 ## 0.6.0
 
