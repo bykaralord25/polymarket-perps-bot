@@ -1,24 +1,13 @@
-import assert from "node:assert/strict";
-import { LiveEngine } from "../src/trading/live-engine.js";
-const locked = new LiveEngine();
-await assert.rejects(() => locked.open({ side: "long", tick: { symbol: "BTC", price: 100, timestamp: 1 }, quantity: 1, stopLoss: 99, takeProfit: 102 }), /safety lock is active/);
-await assert.rejects(() => locked.cancelAll(), /safety lock is active/);
-const calls: string[] = [];
-const fakeSession = {
-  fetchBalances: async () => [],
-  fetchPortfolio: async () => ({ positions: [] }),
-  fetchOpenOrders: async () => [],
-  fetchAutoCancelStatus: async () => ({ armed: false }),
-  updateLeverage: async () => { calls.push("leverage"); return {}; },
-  armAutoCancel: async () => { calls.push("arm"); },
-  disarmAutoCancel: async () => { calls.push("disarm"); },
-  placeOrder: async (request: unknown) => { calls.push("order"); return { order: request }; },
-  cancelAllOrders: async () => { calls.push("cancel"); },
-  close: async () => { calls.push("close"); }
-};
-const enabled = new LiveEngine(fakeSession as never, { enabled: true, instrumentId: 1, leverage: 2, autoCancelMs: 60_000 });
-await enabled.configureRisk(); await enabled.armDeadManSwitch(); await enabled.accountSnapshot();
-await enabled.open({ side: "long", tick: { symbol: "BTC", price: 100, timestamp: 1 }, quantity: 1, stopLoss: 99, takeProfit: 102 });
-await enabled.cancelAll(); await enabled.disarmDeadManSwitch(); await enabled.close();
-assert.deepEqual(calls, ["leverage", "arm", "order", "cancel", "disarm", "close"]);
+import assert from "node:assert/strict";import { LiveEngine } from "../src/trading/live-engine.js";
+const tick={symbol:"BTC",price:100,timestamp:Date.now()};
+const locked=new LiveEngine();await assert.rejects(()=>locked.open({side:"long",tick,quantity:1,stopLoss:99,takeProfit:102}),/safety lock/);
+const calls:string[]=[];const fake={fetchBalances:async()=>[],fetchPortfolio:async()=>({positions:[]}),fetchOpenOrders:async()=>[],fetchAutoCancelStatus:async()=>({armed:false}),updateLeverage:async()=>{calls.push("leverage");return{}},armAutoCancel:async()=>{calls.push("arm")},disarmAutoCancel:async()=>{calls.push("disarm")},placeOrder:async(x:unknown)=>{calls.push("order");return{order:x}},cancelAllOrders:async()=>{calls.push("cancel")},close:async()=>{calls.push("close")}};
+const e=new LiveEngine(fake as never,{enabled:true,instrumentId:1,leverage:2,autoCancelMs:60_000,maxOrderNotional:250,maxPriceAgeMs:10_000});
+await e.configureRisk();await e.armDeadManSwitch();await e.accountSnapshot();await e.open({side:"long",tick,quantity:1,stopLoss:99,takeProfit:102});
+await assert.rejects(()=>e.open({side:"long",tick,quantity:3,stopLoss:99,takeProfit:102}),/max notional/);
+await assert.rejects(()=>e.open({side:"long",tick:{...tick,timestamp:Date.now()-20_000},quantity:1,stopLoss:99,takeProfit:102}),/stale/);
+await assert.rejects(()=>e.open({side:"long",tick,quantity:1,stopLoss:101,takeProfit:102}),/geometry/);
+await assert.rejects(()=>e.open({side:"short",tick,quantity:1,stopLoss:99,takeProfit:98}),/geometry/);
+await e.cancelAll();await e.disarmDeadManSwitch();await e.close();assert.deepEqual(calls,["leverage","arm","order","cancel","disarm","close"]);
+const emergencyCalls:string[]=[];const emergency={...fake,cancelAllOrders:async()=>{emergencyCalls.push("cancel")},close:async()=>{emergencyCalls.push("close")}};const ee=new LiveEngine(emergency as never,{enabled:true,instrumentId:1,leverage:1});await ee.emergencyStop();assert.deepEqual(emergencyCalls,["cancel","close"]);
 console.log("live engine tests passed");
