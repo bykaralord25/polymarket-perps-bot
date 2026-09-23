@@ -59,8 +59,8 @@ The strategy is intentionally simple and replaceable. It is a development starti
 - Stop-loss / take-profit levels
 - Maximum leverage and daily-loss guards
 - JSONL trade/event log
-- Basic indicator and risk-manager tests
-- Friendly TLS/network failure messages
+- Automated indicator, risk-manager and paper-engine PnL/SL/TP/flip tests
+- WebSocket reconnect with exponential backoff (up to 30 seconds)\n- Friendly TLS/network failure messages
 
 ## Quick start
 
@@ -138,7 +138,7 @@ tests/
 
 ## Roadmap
 
-Next: harden reconnect/backoff behavior and expand paper-engine tests. After the public-data path is stable, the authenticated adapter can add explicit opt-in live execution, order placement/cancellation, leverage controls, TP/SL and dead-man/auto-cancel safety. Later milestones include backtesting, a dashboard, Telegram notifications, Docker and strategy plugins.
+Reconnect/backoff and the first paper-engine test suite are now implemented and the v0.4.0 TypeScript check, automated tests and production build have been verified on Windows. Next, the authenticated adapter can add explicit opt-in live execution, order placement/cancellation, leverage controls, TP/SL and dead-man/auto-cancel safety. Later milestones include backtesting, a dashboard, Telegram notifications, Docker and strategy plugins.
 
 ## Security
 
