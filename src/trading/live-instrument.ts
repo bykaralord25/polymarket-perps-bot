@@ -7,15 +7,16 @@ export interface ResolvedLiveInstrument {
   rules: LiveInstrumentRules;
 }
 
+type PerpsInstrument = Awaited<ReturnType<ReturnType<typeof createPublicClient>["fetchPerpsInstruments"]>>[number];
+
 function normalizeSymbol(value: string): string {
   return value.trim().toUpperCase().replace(/[-_/](USD|USDC|USDT|PERP)$/i, "");
 }
 
-export async function resolveLiveInstrument(
-  requestedSymbol: string
-): Promise<ResolvedLiveInstrument> {
-  const client = createPublicClient();
-  const instruments = await client.fetchPerpsInstruments();
+export function resolveLiveInstrumentFromList(
+  requestedSymbol: string,
+  instruments: PerpsInstrument[]
+): ResolvedLiveInstrument {
   const wanted = normalizeSymbol(requestedSymbol);
   const instrument = instruments.find((item) =>
     [item.symbol, String(item.baseAsset)].some(
@@ -59,4 +60,12 @@ export async function resolveLiveInstrument(
       isolatedOnly: Boolean(instrument.isolatedOnly)
     }
   };
+}
+
+export async function resolveLiveInstrument(
+  requestedSymbol: string
+): Promise<ResolvedLiveInstrument> {
+  const client = createPublicClient();
+  const instruments = await client.fetchPerpsInstruments();
+  return resolveLiveInstrumentFromList(requestedSymbol, instruments);
 }
