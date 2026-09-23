@@ -4,6 +4,7 @@ import { polymarketFeed } from "./market/polymarket-feed.js";
 import { RiskManager } from "./risk/risk-manager.js";
 import { SignalEngine } from "./strategy/signal-engine.js";
 import { PaperEngine } from "./trading/paper-engine.js";
+import { printBanner } from "./ui/terminal.js";
 
 const risk = new RiskManager(
   config.RISK_PER_TRADE,
@@ -15,9 +16,7 @@ const risk = new RiskManager(
 const signals = new SignalEngine();
 const paper = new PaperEngine(config.STARTING_BALANCE, risk);
 
-console.log("Polymarket Perps Bot v0.6.0");
-console.log(`mode=${config.TRADING_MODE} source=${config.MARKET_SOURCE} symbol=${config.SYMBOL} balance=$${config.STARTING_BALANCE.toFixed(2)}`);
-console.log("Execution is paper-only. No real orders can be sent.\n");
+printBanner("0.7.0", config.TRADING_MODE, config.MARKET_SOURCE, config.SYMBOL, config.STARTING_BALANCE);
 
 const feed =
   config.MARKET_SOURCE === "polymarket"
