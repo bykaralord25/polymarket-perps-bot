@@ -4,8 +4,11 @@ import { polymarketFeed } from "./market/polymarket-feed.js";
 import { RiskManager } from "./risk/risk-manager.js";
 import { SignalEngine } from "./strategy/signal-engine.js";
 import { PaperEngine } from "./trading/paper-engine.js";
+import { createExecutionController } from "./trading/execution-controller.js";
 import { printBanner } from "./ui/terminal.js";
 import { writeDashboardState } from "./dashboard/state.js";
+
+const execution = createExecutionController(config.TRADING_MODE);
 
 const risk = new RiskManager(
   config.RISK_PER_TRADE,
@@ -19,7 +22,7 @@ const paper = new PaperEngine(config.STARTING_BALANCE, risk);
 const startedAt = Date.now();
 const chartHistory: Array<{ timestamp: number; price: number; rsi: number | null; fast: number | null; slow: number | null }> = [];
 
-printBanner("0.8.0", config.TRADING_MODE, config.MARKET_SOURCE, config.SYMBOL, config.STARTING_BALANCE);
+printBanner("0.8.0", execution.mode, config.MARKET_SOURCE, config.SYMBOL, config.STARTING_BALANCE);
 
 const feed =
   config.MARKET_SOURCE === "polymarket"
