@@ -20,4 +20,5 @@ const tooLeveraged=new LiveEngine(fake as never,{enabled:true,instrumentId:1,lev
 await assert.rejects(()=>tooLeveraged.configureRisk(),/instrument maximum/);
 const isolated=new LiveEngine(fake as never,{enabled:true,instrumentId:1,leverage:2,instrumentRules:{...rules,isolatedOnly:true}});
 await assert.rejects(()=>isolated.configureRisk(),/isolated margin/);
+const shutdownCalls:string[]=[];const shutdownSession={...fake,cancelAllOrders:async()=>{shutdownCalls.push("cancel")},disarmAutoCancel:async()=>{shutdownCalls.push("disarm")},close:async()=>{shutdownCalls.push("close")}};const shutdownEngine=new LiveEngine(shutdownSession as never,{enabled:true,instrumentId:1,leverage:1});await shutdownEngine.shutdown();assert.deepEqual(shutdownCalls,["cancel","disarm","close"]);
 console.log("live engine tests passed");
