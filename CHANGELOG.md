@@ -2,6 +2,13 @@
 
 ## 0.7.0
 
+- Added one-click Windows setup and start helpers.
+- First run defaults to PAPER + MOCK.
+- Added a cleaner terminal interface.
+- Live execution remains safety-locked.
+
+## 0.7.0
+
 - Added one-click Windows `SETUP.bat` and `START-BOT.bat` helpers.
 - First-run launcher defaults to safe `PAPER + MOCK` configuration.
 - Added a cleaner terminal banner and beginner-focused startup information.
