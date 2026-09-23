@@ -16,7 +16,7 @@ const risk = new RiskManager(
 const signals = new SignalEngine();
 const paper = new PaperEngine(config.STARTING_BALANCE, risk);
 
-printBanner("0.7.0", config.TRADING_MODE, config.MARKET_SOURCE, config.SYMBOL, config.STARTING_BALANCE);
+printBanner("0.8.0", config.TRADING_MODE, config.MARKET_SOURCE, config.SYMBOL, config.STARTING_BALANCE);
 
 const feed =
   config.MARKET_SOURCE === "polymarket"
