@@ -1,34 +1,20 @@
 import { OrderSide, PerpsTimeInForce, type PerpsSession } from "@polymarket/client";
 import type { Side, Tick } from "../types.js";
-export interface LiveOrderIntent { side: Side; tick: Tick; quantity: number; stopLoss: number; takeProfit: number; }
-export interface LiveExecutionOptions { enabled: boolean; instrumentId: number; leverage: number; autoCancelMs?: number; }
+export interface LiveOrderIntent { side:Side; tick:Tick; quantity:number; stopLoss:number; takeProfit:number; }
+export interface LiveExecutionOptions { enabled:boolean; instrumentId:number; leverage:number; autoCancelMs?:number; maxOrderNotional?:number; maxPriceAgeMs?:number; }
 export class LiveEngine {
-  constructor(private readonly session: PerpsSession | null = null, private readonly options: LiveExecutionOptions = { enabled: false, instrumentId: 0, leverage: 1, autoCancelMs: 60_000 }) {}
-  private ready(): PerpsSession {
-    if (!this.options.enabled || !this.session) throw new Error("Live execution safety lock is active. No real order was sent.");
-    if (!Number.isInteger(this.options.instrumentId) || this.options.instrumentId <= 0) throw new Error("A valid Perps instrumentId is required for live execution.");
-    if (!Number.isFinite(this.options.leverage) || this.options.leverage <= 0) throw new Error("A valid positive leverage is required for live execution.");
-    return this.session;
-  }
-  async accountSnapshot() {
-    const session = this.ready();
-    const [balances, portfolio, openOrders, autoCancel] = await Promise.all([session.fetchBalances(), session.fetchPortfolio(), session.fetchOpenOrders({ instrumentId: this.options.instrumentId }), session.fetchAutoCancelStatus()]);
-    return { balances, portfolio, openOrders, autoCancel };
-  }
-  async configureRisk(): Promise<void> {
-    await this.ready().updateLeverage({ crossMargin: true, instrumentId: this.options.instrumentId, leverage: this.options.leverage });
-  }
-  async armDeadManSwitch(): Promise<void> {
-    const delay = Math.max(this.options.autoCancelMs ?? 60_000, 5_000);
-    await this.ready().armAutoCancel({ cancelAt: Date.now() + delay });
-  }
-  async disarmDeadManSwitch(): Promise<void> { await this.ready().disarmAutoCancel(); }
-  async open(intent: LiveOrderIntent) {
-    const session = this.ready();
-    if (!Number.isFinite(intent.quantity) || intent.quantity <= 0) throw new Error("Live order quantity must be positive.");
-    if (!Number.isFinite(intent.stopLoss) || intent.stopLoss <= 0 || !Number.isFinite(intent.takeProfit) || intent.takeProfit <= 0) throw new Error("Live TP/SL prices must be positive.");
-    return await session.placeOrder({ instrumentId: this.options.instrumentId, quantity: String(intent.quantity), side: intent.side === "long" ? OrderSide.BUY : OrderSide.SELL, stopLoss: { triggerPrice: String(intent.stopLoss) }, takeProfit: { triggerPrice: String(intent.takeProfit) }, timeInForce: PerpsTimeInForce.IOC });
-  }
-  async cancelAll(): Promise<void> { await this.ready().cancelAllOrders({ instrumentId: this.options.instrumentId }); }
-  async close(): Promise<void> { if (this.session) await this.session.close(); }
+ private heartbeat?:ReturnType<typeof setInterval>;
+ constructor(private readonly session:PerpsSession|null=null,private readonly options:LiveExecutionOptions={enabled:false,instrumentId:0,leverage:1,autoCancelMs:60_000,maxOrderNotional:100,maxPriceAgeMs:10_000}){}
+ private ready():PerpsSession{if(!this.options.enabled||!this.session)throw new Error("Live execution safety lock is active. No real order was sent.");if(!Number.isInteger(this.options.instrumentId)||this.options.instrumentId<=0)throw new Error("A valid Perps instrumentId is required for live execution.");if(!Number.isFinite(this.options.leverage)||this.options.leverage<=0)throw new Error("A valid positive leverage is required for live execution.");return this.session}
+ async accountSnapshot(){const s=this.ready();const [balances,portfolio,openOrders,autoCancel]=await Promise.all([s.fetchBalances(),s.fetchPortfolio(),s.fetchOpenOrders({instrumentId:this.options.instrumentId}),s.fetchAutoCancelStatus()]);return{balances,portfolio,openOrders,autoCancel}}
+ async configureRisk(){await this.ready().updateLeverage({crossMargin:true,instrumentId:this.options.instrumentId,leverage:this.options.leverage})}
+ async armDeadManSwitch(){const delay=Math.max(this.options.autoCancelMs??60_000,5_000);await this.ready().armAutoCancel({cancelAt:Date.now()+delay})}
+ startDeadManHeartbeat(){this.ready();if(this.heartbeat)return;const delay=Math.max(this.options.autoCancelMs??60_000,10_000),refresh=Math.max(5_000,Math.floor(delay/2));this.heartbeat=setInterval(()=>{void this.armDeadManSwitch().catch(e=>console.error("Dead-man re-arm failed:",e instanceof Error?e.message:String(e)))},refresh)}
+ stopDeadManHeartbeat(){if(this.heartbeat){clearInterval(this.heartbeat);this.heartbeat=undefined}}
+ async disarmDeadManSwitch(){await this.ready().disarmAutoCancel()}
+ validateIntent(i:LiveOrderIntent){if(!Number.isFinite(i.quantity)||i.quantity<=0)throw new Error("Live order quantity must be positive.");if(!Number.isFinite(i.tick.price)||i.tick.price<=0)throw new Error("Live market price must be positive.");if(Date.now()-i.tick.timestamp>(this.options.maxPriceAgeMs??10_000))throw new Error("Live market price is stale; order blocked.");if(!Number.isFinite(i.stopLoss)||i.stopLoss<=0||!Number.isFinite(i.takeProfit)||i.takeProfit<=0)throw new Error("Live TP/SL prices must be positive.");if(i.side==="long"&&!(i.stopLoss<i.tick.price&&i.takeProfit>i.tick.price))throw new Error("Invalid LONG TP/SL geometry.");if(i.side==="short"&&!(i.stopLoss>i.tick.price&&i.takeProfit<i.tick.price))throw new Error("Invalid SHORT TP/SL geometry.");const notional=i.quantity*i.tick.price;if(notional>(this.options.maxOrderNotional??100))throw new Error("Live order exceeds max notional safety cap.")}
+ async open(i:LiveOrderIntent){this.validateIntent(i);const s=this.ready();return s.placeOrder({instrumentId:this.options.instrumentId,quantity:String(i.quantity),side:i.side==="long"?OrderSide.BUY:OrderSide.SELL,stopLoss:{triggerPrice:String(i.stopLoss)},takeProfit:{triggerPrice:String(i.takeProfit)},timeInForce:PerpsTimeInForce.IOC})}
+ async cancelAll(){await this.ready().cancelAllOrders({instrumentId:this.options.instrumentId})}
+ async emergencyStop(){this.stopDeadManHeartbeat();if(!this.session)return;try{await this.session.cancelAllOrders({instrumentId:this.options.instrumentId})}finally{await this.session.close()}}
+ async close(){this.stopDeadManHeartbeat();if(this.session)await this.session.close()}
 }
