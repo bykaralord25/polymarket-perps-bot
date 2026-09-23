@@ -2,7 +2,7 @@
 
 Open-source TypeScript bot for experimenting with Polymarket Perps. **Paper mode remains the safe default.** v1.0 RC1 also contains an explicitly armed real-money runner for environments where Polymarket Perps is available and the user is permitted to use it.
 
-## Beginner setup — paper mode
+## Beginner setup - paper mode
 
 1. Install Node.js 24+.
 2. Download the repository ZIP and extract it.
@@ -15,11 +15,11 @@ First setup defaults to **PAPER + MOCK**, so it needs no wallet key and sends no
 
 ## What the bot does
 
-Price → EMA/RSI → LONG / SHORT / HOLD → risk checks → execution. Paper mode simulates execution. The dashboard shows market-data mode, charts, signal, paper balance, PnL, position and trade statistics.
+Price -> EMA/RSI -> LONG / SHORT / HOLD -> risk checks -> execution. Paper mode simulates execution. The dashboard shows market-data mode, charts, signal, paper balance, PnL, position and trade statistics.
 
 `REAL POLYMARKET DATA` describes the data source; it does not by itself mean real-money execution.
 
-## Real-money runner — RC / not live-service verified
+## Real-money runner - RC / not live-service verified
 
 The separate `npm run live` entry point can submit real orders. It is intentionally not started by `START-BOT.bat` and fails closed unless all live requirements are explicitly configured.
 
