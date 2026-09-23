@@ -5,6 +5,7 @@ import { RiskManager } from "./risk/risk-manager.js";
 import { SignalEngine } from "./strategy/signal-engine.js";
 import { PaperEngine } from "./trading/paper-engine.js";
 import { printBanner } from "./ui/terminal.js";
+import { writeDashboardState } from "./dashboard/state.js";
 
 const risk = new RiskManager(
   config.RISK_PER_TRADE,
@@ -33,6 +34,23 @@ try {
     }
 
     const { balance, position } = paper.state;
+    const direction = position?.side === "long" ? 1 : position?.side === "short" ? -1 : 0;
+    const unrealizedPnl = position
+      ? (tick.price - position.entryPrice) * position.quantity * direction
+      : 0;
+    await writeDashboardState({
+      updatedAt: Date.now(),
+      tick,
+      rsi: result.rsi,
+      fast: result.fast,
+      slow: result.slow,
+      signal: result.signal,
+      balance,
+      startingBalance: config.STARTING_BALANCE,
+      realizedPnl: balance - config.STARTING_BALANCE,
+      unrealizedPnl,
+      position
+    });
     const rsiText = result.rsi === null ? "--" : result.rsi.toFixed(1);
     const positionText = position
       ? `${position.side.toUpperCase()} ${position.quantity.toFixed(5)}`
