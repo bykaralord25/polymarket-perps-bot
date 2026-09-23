@@ -68,7 +68,7 @@ try{
     }
 
     await engine.open({side:result.signal,tick,quantity,stopLoss:levels.stopLoss,takeProfit:levels.takeProfit});
-    console.log(`LIVE ${result.signal.toUpperCase()} order submitted: qty=${quantity} price≈${tick.price}`);
+    console.log(`LIVE ${result.signal.toUpperCase()} order submitted: qty=${quantity} price~${tick.price}`);
   }
 }finally{
   await backend.stop();

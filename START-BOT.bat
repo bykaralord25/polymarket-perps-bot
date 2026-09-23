@@ -4,7 +4,7 @@ cd /d "%~dp0"
 title Polymarket Perps Bot
 
 echo ==========================================
-echo        POLYMARKET PERPS BOT v0.9
+echo        POLYMARKET PERPS BOT v1.0 RC1
 echo ==========================================
 echo.
 

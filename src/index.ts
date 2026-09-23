@@ -22,7 +22,7 @@ const paper = new PaperEngine(config.STARTING_BALANCE, risk);
 const startedAt = Date.now();
 const chartHistory: Array<{ timestamp: number; price: number; rsi: number | null; fast: number | null; slow: number | null }> = [];
 
-printBanner("0.9.0", execution.mode, config.MARKET_SOURCE, config.SYMBOL, config.STARTING_BALANCE);
+printBanner("1.0.0-rc.1", execution.mode, config.MARKET_SOURCE, config.SYMBOL, config.STARTING_BALANCE);
 
 const feed =
   config.MARKET_SOURCE === "polymarket"
