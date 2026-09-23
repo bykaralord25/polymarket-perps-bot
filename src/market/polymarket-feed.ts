@@ -9,14 +9,15 @@ function normalizeSymbol(value: string): string {
 
 export async function* polymarketFeed(
   requestedSymbol: string,
-  intervalMs: number
+  _intervalMs: number
 ): AsyncGenerator<Tick> {
   const instruments = await client.fetchPerpsInstruments();
   const wanted = normalizeSymbol(requestedSymbol);
-  const instrument = instruments.find((item) => {
-    const candidates = [item.symbol, String(item.baseAsset)];
-    return candidates.some((candidate) => normalizeSymbol(candidate) === wanted);
-  });
+  const instrument = instruments.find((item) =>
+    [item.symbol, String(item.baseAsset)].some(
+      (candidate) => normalizeSymbol(candidate) === wanted
+    )
+  );
 
   if (!instrument) {
     const available = instruments.slice(0, 20).map((item) => item.symbol).join(", ");
@@ -26,22 +27,28 @@ export async function* polymarketFeed(
   }
 
   console.log(
-    `Polymarket market feed connected: ${instrument.symbol} (instrument ${instrument.id})`
+    `Polymarket WebSocket connected: ${instrument.symbol} (instrument ${instrument.id})`
   );
 
-  while (true) {
-    const ticker = await client.fetchPerpsTicker({ instrumentId: instrument.id });
-    const price = Number(ticker.markPrice || ticker.midPrice || ticker.lastPrice);
-    if (!Number.isFinite(price) || price <= 0) {
-      throw new Error(`Invalid ticker price received for ${instrument.symbol}`);
+  const handle = await client.subscribe([
+    { topic: "perps.tickers", instrumentId: instrument.id }
+  ]);
+
+  try {
+    for await (const event of handle) {
+      if (event.topic !== "perps.tickers" || event.type !== "ticker") continue;
+      const price = Number(
+        event.payload.markPrice || event.payload.midPrice || event.payload.lastPrice
+      );
+      if (!Number.isFinite(price) || price <= 0) continue;
+
+      yield {
+        symbol: instrument.symbol,
+        price,
+        timestamp: event.timestamp
+      };
     }
-
-    yield {
-      symbol: instrument.symbol,
-      price,
-      timestamp: ticker.timestamp ?? Date.now()
-    };
-
-    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  } finally {
+    await handle.close();
   }
 }
