@@ -16,6 +16,8 @@ const risk = new RiskManager(
 );
 const signals = new SignalEngine();
 const paper = new PaperEngine(config.STARTING_BALANCE, risk);
+const startedAt = Date.now();
+const chartHistory: Array<{ timestamp: number; price: number; rsi: number | null; fast: number | null; slow: number | null }> = [];
 
 printBanner("0.8.0", config.TRADING_MODE, config.MARKET_SOURCE, config.SYMBOL, config.STARTING_BALANCE);
 
@@ -38,7 +40,10 @@ try {
     const unrealizedPnl = position
       ? (tick.price - position.entryPrice) * position.quantity * direction
       : 0;
+    chartHistory.push({ timestamp: tick.timestamp, price: tick.price, rsi: result.rsi, fast: result.fast, slow: result.slow });
+    if (chartHistory.length > 180) chartHistory.shift();
     await writeDashboardState({
+      startedAt,
       updatedAt: Date.now(),
       tick,
       rsi: result.rsi,
@@ -49,7 +54,8 @@ try {
       startingBalance: config.STARTING_BALANCE,
       realizedPnl: balance - config.STARTING_BALANCE,
       unrealizedPnl,
-      position
+      position,
+      history: chartHistory
     });
     const rsiText = result.rsi === null ? "--" : result.rsi.toFixed(1);
     const positionText = position
