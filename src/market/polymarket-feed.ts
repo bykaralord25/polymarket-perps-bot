@@ -12,7 +12,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function retryDelay(attempt: number): number {
+export function retryDelay(attempt: number): number {
   return Math.min(1_000 * 2 ** Math.min(attempt, 5), MAX_RECONNECT_DELAY_MS);
 }
 
@@ -39,6 +39,7 @@ export async function* polymarketFeed(
 
   while (true) {
     let handle: Awaited<ReturnType<typeof client.subscribe>> | undefined;
+    let receivedValidTick = false;
 
     try {
       handle = await client.subscribe([
@@ -48,7 +49,6 @@ export async function* polymarketFeed(
       console.log(
         `Polymarket WebSocket connected: ${instrument.symbol} (instrument ${instrument.id})`
       );
-      attempt = 0;
 
       for await (const event of handle) {
         if (event.topic !== "perps.tickers" || event.type !== "ticker") continue;
@@ -57,6 +57,9 @@ export async function* polymarketFeed(
           event.payload.markPrice || event.payload.midPrice || event.payload.lastPrice
         );
         if (!Number.isFinite(price) || price <= 0) continue;
+
+        receivedValidTick = true;
+        attempt = 0;
 
         yield {
           symbol: instrument.symbol,
@@ -72,6 +75,7 @@ export async function* polymarketFeed(
       console.warn(
         `Polymarket WebSocket disconnected: ${message}. Reconnecting in ${Math.round(delay / 1000)}s...`
       );
+      if (receivedValidTick) attempt = 1;
       await sleep(delay);
     } finally {
       if (handle) {
