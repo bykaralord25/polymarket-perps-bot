@@ -17,5 +17,7 @@ const schema = z.object({
 export const config = schema.parse(process.env);
 
 if (config.TRADING_MODE === "live") {
-  throw new Error("Live trading is not enabled yet. Set TRADING_MODE=paper.");
+  throw new Error(
+    "Live execution safety lock is active in this release. Use TRADING_MODE=paper."
+  );
 }
