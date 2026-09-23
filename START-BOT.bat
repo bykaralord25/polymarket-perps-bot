@@ -4,14 +4,13 @@ cd /d "%~dp0"
 title Polymarket Perps Bot
 
 echo ==========================================
-echo        POLYMARKET PERPS BOT v0.8
+echo        POLYMARKET PERPS BOT v0.9
 echo ==========================================
 echo.
 
 where node >nul 2>nul
 if errorlevel 1 (
   echo [ERROR] Node.js 24+ is not installed.
-  echo Install Node.js, then run this file again.
   pause
   exit /b 1
 )
@@ -41,15 +40,15 @@ echo Dashboard: http://127.0.0.1:8787
 echo Press Ctrl+C here to stop the bot.
 echo.
 call npm.cmd run dev
-goto :end
+goto :cleanup
 
 :fail
 echo.
 echo [ERROR] Setup failed. No real order was sent.
-pause
-exit /b 1
+goto :cleanup
 
-:end
+:cleanup
+taskkill /FI "WINDOWTITLE eq Perps Dashboard Server*" /T /F >nul 2>nul
 echo.
-echo Bot stopped. Close the dashboard server window if it is still running.
+echo Bot and dashboard stopped.
 pause

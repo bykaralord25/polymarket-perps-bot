@@ -1,8 +1,8 @@
 {
   "name": "polymarket-perps-bot",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": false,
-  "description": "Open-source Polymarket Perps bot with verified paper trading and safety-locked live infrastructure",
+  "description": "Open-source Polymarket Perps bot with verified paper trading, dashboard, and safety-gated live infrastructure",
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.ts",
@@ -13,19 +13,8 @@
     "test": "tsx tests/indicators.test.ts && tsx tests/risk-manager.test.ts && tsx tests/paper-engine.test.ts && tsx tests/market-feed.test.ts && tsx tests/live-engine.test.ts && tsx tests/live-runtime.test.ts && tsx tests/graceful-shutdown.test.ts && tsx tests/live-bootstrap.test.ts && tsx tests/live-instrument.test.ts && tsx tests/execution-controller.test.ts && tsx tests/live-startup.test.ts",
     "dashboard": "tsx src/dashboard/server.ts"
   },
-  "engines": {
-    "node": ">=24"
-  },
-  "dependencies": {
-    "@polymarket/client": "^0.11.0",
-    "dotenv": "^17.2.2",
-    "zod": "^4.1.11",
-    "viem": "^2.37.9"
-  },
-  "devDependencies": {
-    "@types/node": "^24.5.2",
-    "tsx": "^4.20.5",
-    "typescript": "^5.9.2"
-  },
+  "engines": {"node": ">=24"},
+  "dependencies": {"@polymarket/client": "^0.11.0","dotenv": "^17.2.2","zod": "^4.1.11","viem": "^2.37.9"},
+  "devDependencies": {"@types/node": "^24.5.2","tsx": "^4.20.5","typescript": "^5.9.2"},
   "license": "MIT"
 }
