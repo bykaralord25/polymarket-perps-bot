@@ -2,25 +2,26 @@
 
 An open-source starter for experimenting with automated strategies on Polymarket Perps.
 
-The project starts in **paper mode** on purpose. It includes a small signal engine, position sizing, stop-loss / take-profit logic, a paper execution engine, trade logging, and a clean path for wiring the official Polymarket SDK into live execution later.
+The bot is **paper-only by default**. It can read public Polymarket Perps market data, generate EMA/RSI signals, size positions with configurable risk rules, simulate trades, and write trade events locally. Real order execution is intentionally disabled.
 
-> Polymarket's Perps APIs are currently marked experimental by the official SDK. Expect breaking changes while the API evolves.
+> Polymarket's Perps APIs are marked experimental by the official SDK and may change.
 
-## What works in v0.1
+## Current status
 
-- Paper trading by default
+- Real public Polymarket Perps ticker feed over the official SDK/WebSocket
+- Mock feed for offline development
+- Paper trading only
 - EMA crossover + RSI signal engine
 - Configurable risk per trade
-- Stop-loss and take-profit levels
-- Maximum leverage guard
-- Daily loss guard
+- Stop-loss / take-profit levels
+- Maximum leverage and daily-loss guards
 - JSONL trade/event log
-- Mock market feed so the project runs immediately
-- Live mode is intentionally blocked until the authenticated Polymarket adapter is implemented and tested
+- Basic indicator and risk-manager tests
+- Friendly TLS/network failure messages
 
 ## Quick start
 
-Requirements: Node.js 24+.
+Requires Node.js 24+.
 
 ```bash
 git clone https://github.com/bykaralord25/polymarket-perps-bot.git
@@ -30,21 +31,28 @@ cp .env.example .env
 npm run dev
 ```
 
-On Windows PowerShell:
+Windows PowerShell:
 
 ```powershell
 Copy-Item .env.example .env
-npm run dev
+npm.cmd run dev
 ```
 
-You should see paper signals and simulated trades in the terminal. Events are written to `data/trades.jsonl`.
+If PowerShell blocks `npm.ps1`, use `npm.cmd` as shown above.
+
+If Node reports a certificate-chain error and the required root CA is already trusted by your operating system, try:
+
+```powershell
+npm.cmd run dev:system-ca
+```
+
+Do **not** work around certificate errors with `NODE_TLS_REJECT_UNAUTHORIZED=0`, `curl -k`, or equivalent TLS-verification bypasses. If the Polymarket API is unavailable from your network or region, the bot cannot fix that locally; use `MARKET_SOURCE=mock` for offline development and follow the rules that apply where you are.
 
 ## Configuration
 
-Edit `.env`:
-
 ```env
 TRADING_MODE=paper
+MARKET_SOURCE=polymarket
 SYMBOL=BTC
 STARTING_BALANCE=10000
 RISK_PER_TRADE=0.01
@@ -52,9 +60,18 @@ MAX_LEVERAGE=2
 STOP_LOSS_PCT=0.01
 TAKE_PROFIT_PCT=0.02
 DAILY_LOSS_LIMIT_PCT=0.03
+TICK_INTERVAL_MS=1000
 ```
 
-Keep `TRADING_MODE=paper` until you understand the strategy and risks.
+Set `MARKET_SOURCE=mock` when you want to run the strategy without external market access. Keep `TRADING_MODE=paper`; live execution is not implemented yet.
+
+## Development checks
+
+```bash
+npm run check
+npm test
+npm run build
+```
 
 ## Project layout
 
@@ -62,27 +79,33 @@ Keep `TRADING_MODE=paper` until you understand the strategy and risks.
 src/
   config.ts
   index.ts
-  market/mock-feed.ts
+  market/
+    mock-feed.ts
+    polymarket-feed.ts
   risk/risk-manager.ts
-  strategy/indicators.ts
-  strategy/signal-engine.ts
+  strategy/
+    indicators.ts
+    signal-engine.ts
   trading/paper-engine.ts
   types.ts
+tests/
+  indicators.test.ts
+  risk-manager.test.ts
 ```
 
 ## Roadmap
 
-The next milestone is the official Polymarket Perps adapter: public market data, authenticated session handling, order placement/cancellation, leverage updates, TP/SL, WebSocket reconnects, and a dead-man/auto-cancel safety switch. After that: dashboard, backtesting, Telegram notifications, Docker, and strategy plugins.
+Next: harden reconnect/backoff behavior and expand paper-engine tests. After the public-data path is stable, the authenticated adapter can add explicit opt-in live execution, order placement/cancellation, leverage controls, TP/SL and dead-man/auto-cancel safety. Later milestones include backtesting, a dashboard, Telegram notifications, Docker and strategy plugins.
 
 ## Security
 
-Never commit a private key, API secret, seed phrase, or real `.env` file. This repository ignores `.env` by default.
+Never commit a private key, API secret, seed phrase, or real `.env` file. The repository ignores `.env`.
 
-Live trading is deliberately not enabled in v0.1. When it is added, it will require an explicit opt-in and separate safety checks.
+TLS verification should remain enabled. Live trading, when implemented, should require explicit opt-in and separate safety checks.
 
 ## Disclaimer
 
-This software is for educational and experimental use. It does not provide financial advice and does not guarantee profit. Perpetual futures and leverage can cause rapid losses. You are responsible for your own keys, configuration, trades, and compliance with the rules that apply to you.
+This software is for educational and experimental use. It does not provide financial advice or guarantee profit. Perpetual futures and leverage can cause rapid losses. Users are responsible for their own keys, configuration, trades, and compliance with applicable rules.
 
 This project is independent and is not affiliated with or endorsed by Polymarket.
 
