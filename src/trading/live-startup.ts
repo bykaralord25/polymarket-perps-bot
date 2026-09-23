@@ -1,6 +1,6 @@
 import type { PerpsSession } from "@polymarket/client";
 import { bootstrapLiveExecution, type LiveBootstrap } from "./live-bootstrap.js";
-import { createExecutionController, type ExecutionBackend } from "./execution-controller.js";
+import { createExecutionController, type LiveExecutionBackend } from "./execution-controller.js";
 import { createLivePerpsSession, type LiveSessionEnv } from "./live-session.js";
 import type { ResolvedLiveInstrument } from "./live-instrument.js";
 
@@ -33,7 +33,7 @@ export async function startLiveExecution(
   env: LiveSessionEnv,
   options: LiveStartupOptions,
   dependencies: LiveStartupDependencies = {}
-): Promise<ExecutionBackend> {
+): Promise<LiveExecutionBackend> {
   if (!env.privateKey?.trim()) {
     throw new Error("Live startup refused: private key is missing.");
   }
@@ -61,7 +61,7 @@ export async function startLiveExecution(
       },
       dependencies.resolveInstrument
     );
-    return createExecutionController("live", { liveBootstrap });
+    return createExecutionController("live", { liveBootstrap }) as LiveExecutionBackend;
   } catch (error) {
     try {
       await session.close();

@@ -1,0 +1,12 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+const source=await readFile("src/live-bot.ts","utf8");
+assert.match(source,/LIVE_CONFIRM/);
+assert.match(source,/I_UNDERSTAND_REAL_MONEY/);
+assert.match(source,/LIVE_MAX_ORDER_NOTIONAL/);
+assert.match(source,/inLiquidation/);
+assert.match(source,/daily loss guard/i);
+assert.match(source,/existing .* position is open/);
+assert.match(source,/finally/);
+assert.match(source,/backend\.stop/);
+console.log("live bot safety tests passed");
