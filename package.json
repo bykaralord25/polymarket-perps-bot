@@ -1,8 +1,8 @@
 {
   "name": "polymarket-perps-bot",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": false,
-  "description": "Open-source paper trading bot starter for Polymarket Perps",
+  "description": "Open-source paper trading bot for Polymarket Perps",
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.ts",
@@ -12,6 +12,7 @@
   },
   "engines": { "node": ">=24" },
   "dependencies": {
+    "@polymarket/client": "^0.11.0",
     "dotenv": "^17.2.2",
     "zod": "^4.1.11"
   },
