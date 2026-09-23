@@ -2,5 +2,7 @@ node_modules/
 dist/
 .env
 data/*.jsonl
+data/dashboard-state.json
+data/dashboard-state.tmp
 .DS_Store
 *.log
