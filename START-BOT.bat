@@ -4,7 +4,7 @@ cd /d "%~dp0"
 title Polymarket Perps Bot
 
 echo ==========================================
-echo        POLYMARKET PERPS BOT
+echo        POLYMARKET PERPS BOT v0.8
 echo ==========================================
 echo.
 
@@ -17,20 +17,28 @@ if errorlevel 1 (
 )
 
 if not exist node_modules (
-  echo [1/3] Installing dependencies...
+  echo [1/4] Installing dependencies...
   call npm.cmd install
   if errorlevel 1 goto :fail
 )
 
 if not exist .env (
-  echo [2/3] Creating safe paper configuration...
+  echo [2/4] Creating safe PAPER + MOCK configuration...
   copy /Y .env.example .env >nul
   powershell -NoProfile -Command "(Get-Content '.env') -replace 'MARKET_SOURCE=polymarket','MARKET_SOURCE=mock' | Set-Content '.env'"
 ) else (
-  echo [2/3] Existing .env found. Keeping your settings.
+  echo [2/4] Existing .env found. Keeping your settings.
 )
 
-echo [3/3] Starting bot...
+echo [3/4] Starting local dashboard...
+start "Perps Dashboard Server" /min cmd /c "npm.cmd run dashboard"
+
+echo [4/4] Opening dashboard and starting bot...
+timeout /t 2 /nobreak >nul
+start "" "http://127.0.0.1:8787"
+echo.
+echo Dashboard: http://127.0.0.1:8787
+echo Press Ctrl+C here to stop the bot.
 echo.
 call npm.cmd run dev
 goto :end
@@ -43,5 +51,5 @@ exit /b 1
 
 :end
 echo.
-echo Bot stopped.
+echo Bot stopped. Close the dashboard server window if it is still running.
 pause
