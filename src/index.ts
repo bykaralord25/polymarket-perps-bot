@@ -43,6 +43,8 @@ try {
     chartHistory.push({ timestamp: tick.timestamp, price: tick.price, rsi: result.rsi, fast: result.fast, slow: result.slow });
     if (chartHistory.length > 180) chartHistory.shift();
     await writeDashboardState({
+      marketSource: config.MARKET_SOURCE,
+      dataMode: config.MARKET_SOURCE === "polymarket" ? "REAL" : "SIMULATED",
       startedAt,
       updatedAt: Date.now(),
       tick,
