@@ -138,13 +138,13 @@ tests/
 
 ## Roadmap
 
-Reconnect/backoff and the first paper-engine test suite are now implemented and the v0.4.0 TypeScript check, automated tests and production build have been verified on Windows. Next, the authenticated adapter can add explicit opt-in live execution, order placement/cancellation, leverage controls, TP/SL and dead-man/auto-cancel safety. Later milestones include backtesting, a dashboard, Telegram notifications, Docker and strategy plugins.
+v0.5.0 is the hardened paper-trading release: CI, reconnect/backoff, paper-engine tests, live safety-lock tests and Docker support are included. The authenticated Polymarket Perps execution path is intentionally not enabled in this release. Before any future live release, order placement/cancellation, leverage, TP/SL and dead-man/auto-cancel behavior must be implemented against the current official experimental SDK and tested in an environment where the Perps service is legitimately reachable.
 
 ## Security
 
 Never commit a private key, API secret, seed phrase, or real `.env` file. The repository ignores `.env`.
 
-TLS verification should remain enabled. Live trading, when implemented, should require explicit opt-in and separate safety checks.
+TLS verification should remain enabled. Setting `TRADING_MODE=live` currently fails closed; it does not unlock real orders. Never paste wallet secrets into issues, screenshots, chat logs or source files.
 
 ## Disclaimer
 
