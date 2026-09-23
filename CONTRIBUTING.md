@@ -12,4 +12,4 @@ Thanks for helping improve Polymarket Perps Bot.
 
 ## Live execution changes
 
-Changes that can send real orders must remain explicitly opt-in, include tests for failure paths, and preserve a hard separation between paper and live execution. The Polymarket Perps SDK is experimental, so live-related changes should be checked against the current official SDK before merge.
+Changes that can send real orders must remain explicitly opt in, include tests for failure paths, and preserve a hard separation between paper and live execution. The Polymarket Perps SDK is experimental, so live related changes should be checked against the current official SDK before merge.
