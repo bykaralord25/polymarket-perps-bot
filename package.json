@@ -1,8 +1,8 @@
 {
   "name": "polymarket-perps-bot",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": false,
-  "description": "Open-source paper trading bot for Polymarket Perps",
+  "description": "Open-source Polymarket Perps bot with verified paper trading and safety-locked live infrastructure",
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.ts",
@@ -12,7 +12,9 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "tsx tests/indicators.test.ts && tsx tests/risk-manager.test.ts && tsx tests/paper-engine.test.ts && tsx tests/market-feed.test.ts && tsx tests/live-engine.test.ts"
   },
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
     "@polymarket/client": "^0.11.0",
     "dotenv": "^17.2.2",
