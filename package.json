@@ -1,6 +1,6 @@
 {
   "name": "polymarket-perps-bot",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": false,
   "description": "Open-source Polymarket Perps bot with verified paper trading and safety-locked live infrastructure",
   "type": "module",
