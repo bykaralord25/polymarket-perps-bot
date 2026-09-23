@@ -1,63 +1,65 @@
 # Polymarket Perps Bot
 
-Open source TypeScript bot for experimenting with Polymarket Perps. **Paper mode remains the safe default.** v1.0 RC1 also contains an explicitly armed real money runner for environments where Polymarket Perps is available and the user is permitted to use it.
+Open source TypeScript bot for experimenting with Polymarket Perps. **Paper mode remains the safe default.** Version 1.0 RC1 also includes an explicitly enabled real money runner for environments where Polymarket Perps is available and the user is permitted to use it.
 
-## Beginner setup paper mode
+## Beginner setup for paper mode
 
-1. Install Node.js 24+.
+1. Install Node.js 24 or newer.
 2. Download the repository ZIP and extract it.
-3. Double-click `SETUP.bat` once.
-4. Double-click `START-BOT.bat`.
+3. Double click `SETUP.bat` once.
+4. Double click `START-BOT.bat`.
 5. The local dashboard opens at `127.0.0.1:8787`.
-6. Ctrl+C stops the bot; the launcher also closes its dashboard process.
+6. Press Ctrl+C to stop the bot. The launcher also closes its dashboard process.
 
-First setup defaults to **PAPER + MOCK**, so it needs no wallet key and sends no real order.
+The first setup defaults to **PAPER + MOCK**. It does not need a wallet key and does not send real orders.
 
 ## What the bot does
 
-Price -> EMA/RSI -> LONG / SHORT / HOLD -> risk checks -> execution. Paper mode simulates execution. The dashboard shows market-data mode, charts, signal, paper balance, PnL, position and trade statistics.
+The bot reads the market price, calculates EMA and RSI, produces a LONG, SHORT or HOLD signal, applies the configured risk checks and then executes the selected mode.
 
-`REAL POLYMARKET DATA` describes the data source; it does not by itself mean real-money execution.
+Paper mode simulates trading. The dashboard displays the market data mode, charts, signal, paper balance, PnL, position and trade statistics.
 
-## Real money runner - RC / not live service verified
+`REAL POLYMARKET DATA` describes the source of the price data. It does not mean that real money execution is active.
 
-The separate `npm run live` entry point can submit real orders. It is intentionally not started by `START-BOT.bat` and fails closed unless all live requirements are explicitly configured.
+## Real money runner
 
-Before it can start, the local `.env` must contain the user's own credentials and the exact acknowledgement:
+The separate `npm run live` command can submit real orders. It is not started by `START-BOT.bat`. Live execution remains locked until all required settings are explicitly configured.
+
+The local `.env` file must contain the user's own credentials and confirmation.
 
 ```env
 LIVE_CONFIRM=I_UNDERSTAND_REAL_MONEY
 LIVE_MAX_ORDER_NOTIONAL=25
 POLYMARKET_PRIVATE_KEY=YOUR_LOCAL_PRIVATE_KEY
-# POLYMARKET_DEPOSIT_WALLET=0x...   # only when required for your setup
+# POLYMARKET_DEPOSIT_WALLET=0x...
 ```
 
-Never put the real key in GitHub, an issue, screenshot, chat message or committed file. `.env` is ignored by Git.
+Never put a real private key in GitHub, an issue, screenshot, chat message or committed file. The local `.env` file is ignored by Git.
 
-Then the explicit command is:
+Start the live runner with:
 
 ```bash
 npm run live
 ```
 
-Live safeguards include official instrument/rule resolution, account preflight, leverage validation, minimum/maximum notional and quantity precision checks, stale price blocking, TP/SL geometry checks, a local per-order notional cap, daily loss guard, liquidation state guard, refusal to stack another position in the same instrument, dead-man auto-cancel and cleanup on shutdown.
+Live safeguards include official instrument rule resolution, account preflight, leverage validation, minimum and maximum notional checks, quantity precision checks, stale price protection, TP and SL validation, a local order notional cap, a daily loss guard, liquidation state protection, protection against opening another position in the same instrument, dead man auto cancel and cleanup during shutdown.
 
-**RC1 limitation:** automated tests and CI are green, but a real money Polymarket order has not been end to end integration tested from this development environment. Do not treat RC1 as proof that live execution will work on your account/network. Polymarket's Perps API is experimental and may change.
+**RC1 limitation:** automated tests and CI pass, but a real money Polymarket order has not yet been verified end to end from this development environment. RC1 should therefore not be treated as proof that live execution will work on every account or network. The Polymarket Perps API is experimental and may change.
 
 ## Main settings
 
 | Setting | Meaning |
 | --- | --- |
 | `TRADING_MODE=paper` | Default simulated execution. |
-| `MARKET_SOURCE=mock` | Local fake prices. |
+| `MARKET_SOURCE=mock` | Local simulated prices. |
 | `MARKET_SOURCE=polymarket` | Public Polymarket Perps market data. |
 | `SYMBOL=BTC` | Instrument symbol. |
-| `RISK_PER_TRADE=0.01` | Risk-model fraction. |
+| `RISK_PER_TRADE=0.01` | Risk model fraction. |
 | `MAX_LEVERAGE=2` | Configured leverage. |
-| `STOP_LOSS_PCT=0.01` | Stop-loss distance. |
-| `TAKE_PROFIT_PCT=0.02` | Take-profit distance. |
-| `DAILY_LOSS_LIMIT_PCT=0.03` | Daily-loss guard. |
-| `LIVE_MAX_ORDER_NOTIONAL=25` | Local maximum notional per live order. |
+| `STOP_LOSS_PCT=0.01` | Stop loss distance. |
+| `TAKE_PROFIT_PCT=0.02` | Take profit distance. |
+| `DAILY_LOSS_LIMIT_PCT=0.03` | Daily loss guard. |
+| `LIVE_MAX_ORDER_NOTIONAL=25` | Maximum local notional allowed for one live order. |
 
 ## Verification
 
@@ -70,13 +72,15 @@ npm run build
 
 ## Network and security
 
-TLS verification must remain enabled. Do not use certificate verification bypasses. If Polymarket is unavailable from a network or region, this project does not bypass that restriction use mock mode for offline development and follow applicable rules.
+TLS verification must remain enabled. Do not bypass certificate verification. If Polymarket is unavailable from a network or region, this project does not bypass that restriction. Mock mode remains available for offline development.
 
-Never share private keys, seed phrases, API secrets or delegated credentials. Use a wallet/account whose loss exposure you understand before any real money test.
+Never share private keys, seed phrases, API secrets or delegated credentials. Use a wallet and account whose loss exposure you understand before any real money test.
 
 ## Disclaimer
 
-Experimental software, not financial advice and not a profit guarantee. Perpetual futures and leverage can cause rapid losses. Users are responsible for keys, configuration, trades and compliance with applicable rules. This project is independent and is not affiliated with or endorsed by Polymarket.
+This is experimental software. It is not financial advice and it does not guarantee profit. Perpetual futures and leverage can cause rapid losses. Users are responsible for their keys, configuration, trades and compliance with applicable rules.
+
+This project is independent and is not affiliated with or endorsed by Polymarket.
 
 ## License
 
