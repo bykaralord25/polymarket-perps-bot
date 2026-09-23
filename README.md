@@ -62,7 +62,13 @@ The strategy is intentionally simple and replaceable. It is a development starti
 - Automated indicator, risk-manager and paper-engine PnL/SL/TP/flip tests
 - WebSocket reconnect with exponential backoff (up to 30 seconds)\n- Friendly TLS/network failure messages
 
-## Quick start
+## Easiest Windows setup
+
+Requires Node.js 24+.
+
+Download and extract the repository ZIP. Double-click `SETUP.bat` once; it installs dependencies and runs the project checks. After setup succeeds, double-click `START-BOT.bat` whenever you want to run the bot. On first launch it creates a safe PAPER + MOCK configuration, so no real money or wallet key is used. Press Ctrl+C to stop the bot.
+
+## Command-line quick start
 
 Requires Node.js 24+.
 
@@ -138,7 +144,7 @@ tests/
 
 ## Roadmap
 
-v0.5.0 is the hardened paper-trading release: CI, reconnect/backoff, paper-engine tests, live safety-lock tests and Docker support are included. The authenticated Polymarket Perps execution path is intentionally not enabled in this release. Before any future live release, order placement/cancellation, leverage, TP/SL and dead-man/auto-cancel behavior must be implemented against the current official experimental SDK and tested in an environment where the Perps service is legitimately reachable.
+v0.7.0 adds beginner-friendly Windows setup and launch helpers plus a cleaner terminal interface. The authenticated live infrastructure remains behind the safety lock; the main application is still paper-only.
 
 ## Security
 
