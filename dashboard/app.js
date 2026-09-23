@@ -1,0 +1,1 @@
+fetch("/api/health").then(r=>r.json()).then(x=>{document.querySelector("#status").textContent=x.ok?"Online":"Offline";document.querySelector("#version").textContent="v"+x.version;document.querySelector("#execution").textContent=x.execution;}).catch(()=>document.querySelector("#status").textContent="Offline");
