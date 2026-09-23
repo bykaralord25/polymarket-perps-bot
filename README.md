@@ -1,9 +1,52 @@
 # Polymarket Perps Bot
 
-An open-source starter for experimenting with automated strategies on Polymarket Perps.
+An open-source bot for learning and testing automated strategies on Polymarket Perps. **The current version uses paper trading only: no real orders and no real money.**
 
-The bot is **paper-only by default**. It can read public Polymarket Perps market data, generate EMA/RSI signals, size positions with configurable risk rules, simulate trades, and write trade events locally. Real order execution is intentionally disabled.
+## How it works — simple version
 
+Think of the bot as a program that watches prices and repeatedly does this:
+
+Market price → calculate EMA + RSI → choose LONG / SHORT / HOLD → check risk limits → simulate the trade → print and log the result.
+
+- **LONG**: the example strategy signals upward direction.
+- **SHORT**: the example strategy signals downward direction.
+- **HOLD**: wait; no new action.
+- **FLAT**: there is no open position.
+- **Paper trading**: simulated trading with fake money for testing.
+
+A LONG or SHORT signal is not a prediction or a promise of profit. It is simply the output of the included example strategy.
+
+### What happens after you press Start?
+
+The bot reads a price, stores recent prices, calculates EMA and RSI, generates a signal, checks the risk rules, then opens/closes/changes a simulated position when the rules allow it. Closed simulated trades change the paper balance. Events are saved locally in `data/trades.jsonl`.
+
+### Two ways to run it
+
+Set `MARKET_SOURCE=polymarket` to use public Polymarket Perps market data. Set `MARKET_SOURCE=mock` to generate fake prices locally and test the program without Polymarket access. Mock results are **not real market performance**.
+
+### What do the settings mean?
+
+| Setting | Plain-English meaning |
+| --- | --- |
+| `TRADING_MODE=paper` | Simulated trading. Keep this setting; live execution is not implemented. |
+| `MARKET_SOURCE` | `polymarket` = public market data, `mock` = offline fake data. |
+| `SYMBOL=BTC` | The market the bot watches. |
+| `STARTING_BALANCE=10000` | Fake starting balance. |
+| `RISK_PER_TRADE=0.01` | Risk-model fraction per simulated trade; 0.01 means 1%. |
+| `MAX_LEVERAGE=2` | Maximum leverage allowed by the bot configuration. |
+| `STOP_LOSS_PCT=0.01` | Stop-loss distance; 0.01 means 1%. |
+| `TAKE_PROFIT_PCT=0.02` | Take-profit distance; 0.02 means 2%. |
+| `DAILY_LOSS_LIMIT_PCT=0.03` | Stops new simulated trades after the configured loss limit. |
+
+### What are EMA and RSI?
+
+**EMA (Exponential Moving Average)** gives more weight to recent prices. The example strategy compares faster and slower EMA values to identify short-term direction.
+
+**RSI (Relative Strength Index)** measures recent price momentum on a 0–100 scale. The signal engine combines EMA and RSI and returns LONG, SHORT or HOLD.
+
+The strategy is intentionally simple and replaceable. It is a development starting point, not a claim of a profitable strategy.
+
+---
 > Polymarket's Perps APIs are marked experimental by the official SDK and may change.
 
 ## Current status
