@@ -15,7 +15,7 @@ const risk = new RiskManager(
 const signals = new SignalEngine();
 const paper = new PaperEngine(config.STARTING_BALANCE, risk);
 
-console.log("Polymarket Perps Bot v0.5.0");
+console.log("Polymarket Perps Bot v0.6.0");
 console.log(`mode=${config.TRADING_MODE} source=${config.MARKET_SOURCE} symbol=${config.SYMBOL} balance=$${config.STARTING_BALANCE.toFixed(2)}`);
 console.log("Execution is paper-only. No real orders can be sent.\n");
 
