@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.0
+
+- Added one-click Windows `SETUP.bat` and `START-BOT.bat` helpers.
+- First-run launcher defaults to safe `PAPER + MOCK` configuration.
+- Added a cleaner terminal banner and beginner-focused startup information.
+- Live execution remains safety-locked.
+
 ## 0.6.0
 
 - Added authenticated Perps session bootstrap using the official TypeScript SDK.
